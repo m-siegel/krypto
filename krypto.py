@@ -152,7 +152,7 @@ def get_solutions(numbers, target):
             if solutions:
 
                 # Tack new solutions onto end of solutions string
-                solutions += attempt + "=" + target + "\n"
+                solutions += "{} = {}\n".format(attempt, target)
             else:
                 # Wait to add header until there's one solution so solutions
                 # can be empty if no valid solution has been entered.
@@ -417,14 +417,21 @@ def random_int(seed=7, max_num=25):
 
     # If max_num is 25, then seeding 14 returns 14, but other seeds can
     # return 14, too.
-    if seed == 14:
-        seed = 13
+    if max_num == 25 and seed == 3:
+        seed = 2
 
     # Multiply seed by prime so generated numbers will work their way through
     # all ints between 1 and max_num
     # Add 1 after mod to shift range from [0 to (max_num - 1)]
     # to [1 to max_num]
-    num = ((17 * seed) % max_num) + 1
+    num = ((17 * seed + 1) % max_num) + 1
+
+    # Make sure num doesn't = seed
+    if num == seed:
+        num = (num + 19) % max_num
+        if num == seed or num == 0:
+            num += 1
+
     return num
 
 
