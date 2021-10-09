@@ -54,14 +54,18 @@ def print_instructions():
     print("Here's how it works:")
     print("I'll give you five random numbers between 1 and 25.")
     print("You need to figure out how to use them to get to"
-          " a sixth random number, the 'target.'\n")
-    print("You can use multiplication, division, addition, subtraction, "
+          " a sixth random number,\nthe 'target.'\n")
+    print("You can use multiplication, division, addition, subtraction,\n"
           "exponentiation, radicals, and factorials:\n")
     print_operator_key()
+    print("NOTE: PROGRAM DOES NOT RECOGNIZE NORMAL ORDER OF OPERATIONS:\n"
+          "      Operations proceed from left to right, except where\n"
+          "      parentheses indicate otherwise.\n")
     print("You must use all five numbers, and you cannot repeat them.\n")
-    print("Enter each solution you think you've come up with.\n")
+    print("Enter each solution you think you've come up with.")
+    print("Solutions that are 1-off from the target are okay, too.\n")
     print("Enter 'q' or 'quit' at any time to quit.\n")
-    print("If you would like to provide a seed for the random numbers, "
+    print("If you would like to provide a seed for the random numbers,\n"
           "enter it here.")
     seed = input("Otherwise, just hit 'enter' to start: ")
 
@@ -146,18 +150,21 @@ def get_solutions(numbers, target):
     # Get and check attempted solutions until user quits
     while not (attempt == "q" or attempt == "quit"):
 
-        # Add valid solutions
-        if valid_solution(attempt, numbers, target):
+        # Add valid solutions (offset from target by no more than 1)
+        offset = valid_solution(attempt, numbers, target)
+        if offset in [-1, 0, 1]:
 
-            if solutions:
+            # label solutions as one off or krypto for later printing
+            label = "One off: " if offset else "Krypto:"
 
-                # Tack new solutions onto end of solutions string
-                solutions += "{} = {}\n".format(attempt, target)
-            else:
+            if not solutions:
                 # Wait to add header until there's one solution so solutions
                 # can be empty if no valid solution has been entered.
-                solutions += "Your solutions:\n{} = {}\n".format(attempt,
-                                                                 target)
+                solutions += "Your solutions:\n"
+            # Tack new solutions onto end of solutions string
+            solutions += "{} {} = {}\n".format(label, attempt,
+                                               target + offset)
+
         else:
             # Spacial message if solution fails
             print("Try again.\n")
@@ -180,9 +187,13 @@ def valid_solution(attempt, numbers, target):
             (int) target: number that mathematical expression should eval to
 
         Return:
-            (bool): False if format or elements of attempt are invalid for
-                    given krypto puzzle or if expression doesn't evaluate
-                    to target. Otherwise True.
+            (int or float): 0 if expression evaluates to target
+                            +1 if expression evaluates to one greater,
+                            -1 if expression evaluates to one less.
+                            float('inf') as error value if format or elements
+                            of attempt are invalid for given krypto puzzle,
+                            or if expression doesn't evaluate to target or
+                            one off.
 
         Side effects: prints messages to user about success or failure of
                       attempt.
@@ -192,20 +203,30 @@ def valid_solution(attempt, numbers, target):
     expression = get_list_expression(attempt, numbers)
     # If get_list_expression found issues with attempt, return False
     if not expression:
-        return False
+        return float('inf')
 
-    # Get value of expression, or False if something's wrong with exp syntax
+    # Get value of expression, or float('inf') if error with expression syntax
     value = evaluate_expression(expression)
-    if not value:
-        return False
+    if value == float('inf'):
+        return float('inf')
 
-    # Confirm expression evaluates to target number
+    # If expression evaluates to target, it's a krypto!
     if value == target:
         print("Krypto!")
-        return True
+        return 0
+
+    # If expression evaluates to target + or - 1, it's one off!
+    elif value == target + 1:
+        print("One off!")
+        return 1
+    elif value == target - 1:
+        print("One off!")
+        return -1
+
+    # Otherwise it's not a valid solution
     else:
         print("Evaluates to {}, not {}.".format(value, target))
-        return False
+        return float('inf')
 
 
 def get_list_expression(attempt, numbers):
@@ -313,7 +334,7 @@ def evaluate_expression(expression):
         Parameter: (list) expression: mathematical expression. Each element
                     is a string: integer, arithmetic operation or parentheses.
 
-        Return: (int) value: value of expression or 0 if missing a
+        Return: (int) value or (bool): value of expression or False if missing a
                 close-parentheses.
     """
 
@@ -357,8 +378,8 @@ def evaluate_expression(expression):
                 # Don't index beyond end of list
                 if j == len(expression):
                     print("Missing close-parenthesis.", end=' ')
-                    # Caller reads 0 as False, doesn't operate with it
-                    return 0
+                    # Can't handle exceptions yet, so return inf
+                    return float('inf')
 
             # Recursively evaluate expression inside parentheses
             if not value:
