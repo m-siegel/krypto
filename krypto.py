@@ -13,6 +13,60 @@
     This program provides the user with six numbers and evaluates user's
     proposed solutions. When the user enters 'quit', the program prints
     any correct solutions that the user entered.
+
+    The program takes an optional seed for its random number generator.
+
+    When evaluating mathematical expressions, the program ignores normal order
+    of operations. It evaluates expressions from left to right, except where
+    parentheses indicate otherwise.
+
+    Accepted mathematical operations are multiplication (*), division (/),
+    addition (+), subtraction (-), factorial (!), exponent (^) and root (v).
+    Note: for radical operations, the index must come after the radicand
+    (sqrt(x) is written as x v 2).
+
+    --------------------------------------------------------------------------
+
+    NOTE: This program intentionally does not import other Python libraries to
+    help with evaluating the mathematical operations or obtaining random
+    numbers. This means that the pseudorandom number generator in particular
+    isn't that random because it can't incorporate some variable element, like
+    time, into how it selects numbers.
+
+    --------------------------------------------------------------------------
+
+    EXAMPLE RUN:
+    To distinguish user input from output, input is in single quotes here.
+
+    If you would like to provide a seed for the random numbers,
+    enter it here.
+    Otherwise, just hit 'enter' to start: '4'
+
+    Numbers: 20, 17, 16, 24, 10.
+    Target: 22
+
+    Enter solution: '17 + 24 / (16 v (20 /10))'
+    Evaluates to 10.25, not 22.
+    Try again.
+
+    Numbers: 20, 17, 16, 24, 10.
+    Target: 22
+    Enter solution: '17 + (24 / (16 v (20 /10)))'
+    One off!
+
+    Numbers: 20, 17, 16, 24, 10.
+    Target: 22
+    Enter solution: '20 / (24 + 16 / 10) + 17'
+    Krypto!
+
+    Numbers: 20, 17, 16, 24, 10.
+    Target: 22
+    Enter solution: 'q'
+
+    Your solutions:
+    One off:  17 + (24 / (16 v (20 /10))) = 23
+    Krypto: 20 / (24 + 16 / 10) + 17 = 22
+    Good work!
 """
 
 # Acceptable operators
@@ -20,6 +74,13 @@ ACCEPTED_OPERATORS = ["*", "/", "+", "-", "!", "^", "v"]
 
 
 def main():
+    """
+        Prints instructions.
+        If user doesn't enter quit code, gets and prints pseudorandom numbers,
+        then starts accepting user answers.
+        Once user enters quit code, prints user's solutions and
+        'Good Work! message.
+    """
     # Print instructions and get optional seed for random number generator
     sd = print_instructions()
 
@@ -167,7 +228,7 @@ def get_solutions(numbers, target):
 
         else:
             # Spacial message if solution fails
-            print("Try again.\n")
+            print("Try again.")
 
         # Next attempt
         print_numbers(numbers, target)
@@ -334,8 +395,8 @@ def evaluate_expression(expression):
         Parameter: (list) expression: mathematical expression. Each element
                     is a string: integer, arithmetic operation or parentheses.
 
-        Return: (int) value or (bool): value of expression or False if missing a
-                close-parentheses.
+        Return: (int) value or (bool): value of expression or False if missing
+         a close-parentheses.
     """
 
     # Running value of expression
